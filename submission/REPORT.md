@@ -302,8 +302,8 @@ mà không mất target. Sau đó chạy NB6 merge và đo lại latency, để 
 
 ## Phụ lục — thưởng đã làm
 
-- [ ] B1 NB6 merge + hot-swap
+- [x] B1 NB6 merge + hot-swap
 - [ ] B2 dataset miền riêng (`data/CUSTOM_DATASET.md`)
 - [ ] B3 reasoning-trace collapse — **không khả thi trên corpus mặc định**: `valid_trace_rate = 0,00`, câu trả lời huấn luyện là JSON trần nên `masked-think` / `response-only` / `assistant-only` sinh ra mask giống hệt nhau
-- [ ] B4 quét rank có kiểm soát
-- [ ] B5 HuggingFace Hub — link:
+- [x] B4 quét rank có kiểm soát
+- [x] B5 HuggingFace Hub — link: https://huggingface.co/licht666/qwen3.5-4b-lora-vi-ticket-triage

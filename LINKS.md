@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Repo code | https://github.com/lichtchess666-ai20k/Day21-Track3-2A202601941-NguyenHoangVu |
-| LoRA adapter (HF Hub) | *(dán URL sau khi chạy `python push_to_hub.py <hf-username>`)* |
+| LoRA adapter (HF Hub) | https://huggingface.co/licht666/qwen3.5-4b-lora-vi-ticket-triage |
 | Base model | https://huggingface.co/unsloth/Qwen3.5-4B |
 
 ## Nội dung nộp
