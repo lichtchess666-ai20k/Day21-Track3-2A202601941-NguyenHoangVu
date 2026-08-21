@@ -1,0 +1,7 @@
+# The lab's integrity check hashes these files byte-for-byte (data/checksums.json,
+# scripts/verify.py). Git's autocrlf rewrites LF -> CRLF on a Windows checkout, which
+# changes every hash and makes `verify.py` report the eval set as MODIFIED -- the one
+# failure the gatekeeper treats as an integrity problem, on a repo where nothing was
+# touched. Pin the checksummed data to LF so the check means what it says on Windows.
+*.jsonl -text
+data/checksums.json -text
