@@ -186,16 +186,50 @@ report.write_json(autopsy, "autopsy.json", results_dir=ROOT / "results")
 # cherry-pick và bị trừ điểm ở mục Evaluation Quality.
 
 # %%
+# Baseline (b) per-item predictions, if NB2 wrote them. A "fine-tune loses" case is
+# only interesting next to what the prompted base said on the SAME ticket -- that is
+# the comparison REPORT §6 asks for. A results/ directory produced before NB2 grew
+# this dump has no such file, so the join is optional and the notebook runs without it.
+bpred = {}
+_bp = ROOT / "results" / "baseline_preds.json"
+if _bp.exists():
+    bpred = {r["i"]: r for r in json.loads(_bp.read_text(encoding="utf-8"))}
+else:
+    print("(results/baseline_preds.json chưa có — chạy lại NB2 nếu muốn cột (b) cho REPORT §6)")
+
+cols = ["i", "ticket", "b_score", "b_pred", "ft_score", "ft_pred"] if bpred else        ["i", "ticket", "ft_score", "ft_pred"]
+
 rows = []
 for i, (p, r) in enumerate(zip(preds_ft, target)):
     s_ft = ev.triage_field_accuracy(p, r["label"])
-    rows.append({"i": i, "ticket": r["input"][:70], "ft_score": round(s_ft, 2),
-                 "ft_pred": p.replace("\n", " ")[:90]})
+    row = {"i": i, "ticket": r["input"][:70], "ft_score": round(s_ft, 2),
+           "ft_pred": p.replace("\n", " ")[:90]}
+    b = bpred.get(i)
+    if b:
+        row["gold"] = b["gold"]
+        row["b_score"] = b["b_score"]
+        row["b_pred"] = b["b_pred"]
+        # Negative = the prompted base beat the fine-tune on this ticket.
+        row["ft_minus_b"] = round(row["ft_score"] - b["b_score"], 2)
+    rows.append(row)
 rows.sort(key=lambda x: x["ft_score"])
-print("--- 3 ca TỆ NHẤT (bắt buộc đưa vào report) ---")
-print(report.markdown_table(rows[:3], ["i", "ticket", "ft_score", "ft_pred"]))
+print("--- 3 ca TỆ NHẤT ---")
+print(report.markdown_table(rows[:3], cols))
 print("\n--- 3 ca TỐT NHẤT ---")
-print(report.markdown_table(rows[-3:], ["i", "ticket", "ft_score", "ft_pred"]))
+print(report.markdown_table(rows[-3:], cols))
+
+if bpred:
+    # REPORT §6 needs >=2 tickets where the fine-tune LOSES to (b), and sorting by
+    # ft_score alone does not find them: a ticket BOTH models get wrong is a hard case,
+    # not a losing one. Rank by the gap against (b) instead.
+    losses = sorted([r for r in rows if r["ft_minus_b"] < 0], key=lambda x: x["ft_minus_b"])
+    print(f"\n--- FT THUA (b) trên {len(losses)}/{len(rows)} ticket ---")
+    if losses:
+        print(report.markdown_table(losses[:5], cols + ["ft_minus_b"]))
+    else:
+        print("không ticket nào FT thua (b) — nói thẳng điều đó trong report "
+              "và dùng 2 ca điểm thấp nhất ở bảng trên thay thế")
+
 report.write_json(rows, "qualitative.json", results_dir=ROOT / "results")
 
 # %% [markdown]

@@ -99,6 +99,31 @@ report.write_json(frozen, "baselines_frozen.json", results_dir=ROOT / "results")
 print(json.dumps(frozen, ensure_ascii=False, indent=2))
 
 # %% [markdown]
+# ### Dự đoán từng mẫu — để mục 6 của REPORT có cột (b)
+#
+# `baselines_frozen.json` chỉ giữ điểm tổng hợp; `qualitative.json` ở NB5 chỉ giữ dự
+# đoán của bản fine-tune. Mẫu REPORT §6 lại đòi so **(b) cạnh (c) trên cùng một ticket**
+# — không có file này thì cột đó phải bỏ trống, hoặc phải chạy lại toàn bộ NB2 (17-23
+# phút GPU) chỉ để lấy lại thứ vừa sinh ra xong rồi vứt đi.
+#
+# Đây là artefact phụ, KHÔNG phải mốc đóng băng: nó không đổi điểm số, không đổi
+# `optimized_prompt_sha`, nên không ảnh hưởng `make verify`.
+
+# %%
+per_item = [
+    {"i": i,
+     "ticket": r["input"][:70],
+     "gold": r["label"],
+     "a_pred": pa.replace("\n", " ")[:90],
+     "a_score": round(ev.triage_field_accuracy(pa, r["label"]), 2),
+     "b_pred": pb.replace("\n", " ")[:90],
+     "b_score": round(ev.triage_field_accuracy(pb, r["label"]), 2)}
+    for i, (r, pa, pb) in enumerate(zip(target, preds_a, preds_b))
+]
+report.write_json(per_item, "baseline_preds.json", results_dir=ROOT / "results")
+print(f"baseline_preds.json — {len(per_item)} mẫu, kèm điểm từng mẫu của (a) và (b)")
+
+# %% [markdown]
 # ### Đọc kết quả trước khi đi tiếp
 #
 # * **(b) đã cao sẵn?** Tốt — bài toán của bạn có thể *không cần* fine-tune. Đó là một
