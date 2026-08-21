@@ -37,3 +37,7 @@ hf_cache/
 .idea/
 .vscode/
 *.swp
+
+# Submission staging dir built by the Colab/Kaggle packaging cell (contains 130 MB of
+# adapter weights). The adapter belongs on the HF Hub, not in git history.
+lab21_*/
